@@ -4,12 +4,13 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const multer = require("multer");
+require("dotenv").config();
 
+const wbsRoutes = require("./routes/wbs");
+const hardwareRoutes = require("./routes/hardware");
 const authRoutes = require("./routes/auth");
 
 const app = express();
-
-require("dotenv").config();
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -54,6 +55,8 @@ app.use((req, res, next) => {
 });
 
 app.use("/auth", authRoutes);
+app.use("/wbs", wbsRoutes);
+app.use("/hardware", hardwareRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
@@ -64,7 +67,7 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-  .connect("mongodb://localhost:27017")
+  .connect(process.env.MONGODB)
   .then((result) => {
     app.listen(8080);
   })
