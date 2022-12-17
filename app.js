@@ -8,6 +8,7 @@ require("dotenv").config();
 
 const wbsRoutes = require("./routes/wbs");
 const hardwareRoutes = require("./routes/hardware");
+const jobwbsRoutes = require("./routes/jobwbs");
 const authRoutes = require("./routes/auth");
 
 const app = express();
@@ -21,17 +22,18 @@ const fileStorage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req, file, cb) => {
-  if (
-    file.mimetype === "image/png" ||
-    file.mimetype === "image/jpg" ||
-    file.mimetype === "image/jpeg"
-  ) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
+// const fileFilter = (req, file, cb) => {
+//   // if (
+//   //   file.mimetype === "image/png" ||
+//   //   file.mimetype === "image/jpg" ||
+//   //   file.mimetype === "image/jpeg"
+//   // ) {
+//   //   cb(null, true);
+//   // } else {
+//   // cb(null, false);
+//   // }
+//   cb(null, true);
+// };
 
 app.use(bodyParser.json()); // application/json
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -39,8 +41,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   multer({
     storage: fileStorage,
-    fileFilter: fileFilter,
-  }).single("image")
+    // fileFilter: fileFilter,
+  }).single("fileUrl")
 );
 app.use("/images", express.static(path.join(__dirname, "images")));
 
@@ -56,6 +58,7 @@ app.use((req, res, next) => {
 
 app.use("/auth", authRoutes);
 app.use("/wbs", wbsRoutes);
+app.use("/jobwbs", jobwbsRoutes);
 app.use("/hardware", hardwareRoutes);
 
 app.use((error, req, res, next) => {

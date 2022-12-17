@@ -36,4 +36,14 @@ router.post(
   wbsController.postWbstables
 );
 
+router.post(
+  "/getwbsone",
+  isAuth,
+  // [
+  //   body("nameWbs").trim().isLength({ min: 5 }),
+  //   body("numberWbs").trim().isLength({ min: 5 }),
+  // ],
+  wbsController.postWbsone
+);
+
 module.exports = router;

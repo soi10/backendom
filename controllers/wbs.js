@@ -199,3 +199,31 @@ exports.postWbstables = (req, res, next) => {
       });
   }
 };
+
+exports.postWbsone = (req, res, next) => {
+  const idwbs = req.body.idwbs;
+
+  Wbs.findOne(
+    {
+      _id: idwbs,
+    },
+    {
+      numberWbs: 1,
+      nameWbs: 1,
+      approveNumber: 1,
+      wbsStatus: 1,
+    }
+  )
+    .then((result) => {
+      res.status(200).json({
+        message: "load data",
+        wbs: result,
+      });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    });
+};
