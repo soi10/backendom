@@ -1,6 +1,14 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
+// const date = new Date();
+
+// const day = date.getDate().toString().padStart(2, "0");
+// const month = (date.getMonth() + 1).toString().padStart(2, "0");
+// const year = date.getFullYear().toString();
+// const localDateString = `${day}/${month}/${year}`;
+const date = new Date();
+
 const wbsSchema = new Schema(
   {
     numberWbs: {
@@ -56,6 +64,17 @@ const wbsSchema = new Schema(
       Position: {
         type: String,
         // required: true,
+      },
+    },
+    jobWbsdone: {
+      idJob: {
+        type: String,
+      },
+      jobStatus: {
+        type: String,
+      },
+      jobDatadone: {
+        type: String,
       },
     },
   },

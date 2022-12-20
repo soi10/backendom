@@ -227,3 +227,69 @@ exports.postWbsone = (req, res, next) => {
       next(err);
     });
 };
+
+exports.postWbsjobdone = async (req, res, next) => {
+  const idwbs = req.body.idwbs;
+  const idJob = req.body.idJob;
+  const jobStatus = req.body.jobStatus;
+
+  try {
+    const findDone = await Wbs.find({
+      "jobWbsdone.idJob": idJob,
+    });
+    // console.log(findDone);
+
+    if (!findDone.length) {
+      try {
+        const updatedUser = await Wbs.findByIdAndUpdate(
+          { _id: idwbs },
+          {
+            $push: {
+              jobWbsdone: {
+                idJob: idJob,
+                jobStatus: jobStatus,
+              },
+            },
+          }
+        );
+        res.status(200).json({
+          message: "load data",
+          data: updatedUser,
+        });
+      } catch (error) {
+        if (!error.statusCode) {
+          error.statusCode = 500;
+        }
+        next(error);
+      }
+    } else {
+      res.status(200).json({
+        message: "ok",
+      });
+    }
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
+};
+
+exports.postWbsjobupdate = async (req, res, next) => {
+  const idwbs = req.body.idwbs;
+
+  try {
+    const response = await Wbs.findOne({
+      _id: idwbs,
+    });
+    res.status(200).json({
+      message: "load data",
+      wbsjobupdate: response,
+    });
+  } catch (error) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};

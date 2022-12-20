@@ -46,4 +46,24 @@ router.post(
   wbsController.postWbsone
 );
 
+router.post(
+  "/postwbsjobdone",
+  isAuth,
+  // [
+  //   body("nameWbs").trim().isLength({ min: 5 }),
+  //   body("numberWbs").trim().isLength({ min: 5 }),
+  // ],
+  wbsController.postWbsjobdone
+);
+
+router.post(
+  "/postwbsjobupdate",
+  isAuth,
+  // [
+  //   body("nameWbs").trim().isLength({ min: 5 }),
+  //   body("numberWbs").trim().isLength({ min: 5 }),
+  // ],
+  wbsController.postWbsjobupdate
+);
+
 module.exports = router;
