@@ -21,7 +21,7 @@ const fileStorage = multer.diskStorage({
     let random = Math.floor(Math.random() * 1000000000);
     cb(
       null,
-      new Date().toISOString() + random + path.extname(file.originalname)
+      new Date().toISOString().replace(/:/g , "-") + random + path.extname(file.originalname)
     );
   },
 });
@@ -76,6 +76,6 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(process.env.MONGODB)
   .then((result) => {
-    app.listen(8080);
+    app.listen(443);
   })
-  .catch((err) => console.log());
+  .catch((err) => console.log(err));
