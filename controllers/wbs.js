@@ -261,10 +261,9 @@ exports.postWbsjobdone = async (req, res, next) => {
     if (findjobwbsStatus[0].jobwbsNextstep === "false") {
       try {
         const findDone = await Wbs.find({
+          _id: idwbs,
           "jobWbsdone.idJob": idJob,
         });
-        // console.log(findDone);
-
         if (!findDone.length) {
           try {
             const updatedUser = await Wbs.findByIdAndUpdate(
@@ -304,7 +303,6 @@ exports.postWbsjobdone = async (req, res, next) => {
         const findDone = await Wbs.find({
           "jobWbsdone.idJob": idJob,
         });
-        // console.log(findDone);
 
         if (!findDone.length) {
           try {
