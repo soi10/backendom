@@ -1,5 +1,6 @@
 const { validationResult } = require("express-validator/check");
 const Wbs = require("../models/wbs");
+const Job = require("../models/jobwbs");
 
 exports.createWbs = (req, res, next) => {
   const errors = validationResult(req);
@@ -233,29 +234,65 @@ exports.postWbsjobdone = async (req, res, next) => {
   const idJob = req.body.idJob;
   const jobStatus = req.body.jobStatus;
 
-  try {
-    const findDone = await Wbs.find({
-      "jobWbsdone.idJob": idJob,
-    });
-    // console.log(findDone);
+  let text;
 
-    if (!findDone.length) {
+  try {
+    const findjobwbsStatus = await Job.find({
+      _id: idJob,
+    });
+
+    switch (findjobwbsStatus[0].jobwbsStatus) {
+      case "A0":
+        text = "C1";
+        break;
+      case "C1":
+        text = "D1";
+        break;
+      case "D1":
+        text = "D2";
+        break;
+      case "D2":
+        text = "F4";
+        break;
+      default:
+        text = "I have never heard of that fruit...";
+    }
+
+    if (findjobwbsStatus[0].jobwbsNextstep === "false") {
       try {
-        const updatedUser = await Wbs.findByIdAndUpdate(
-          { _id: idwbs },
-          {
-            $push: {
-              jobWbsdone: {
-                idJob: idJob,
-                jobStatus: jobStatus,
-              },
-            },
-          }
-        );
-        res.status(200).json({
-          message: "load data",
-          data: updatedUser,
+        const findDone = await Wbs.find({
+          "jobWbsdone.idJob": idJob,
         });
+        // console.log(findDone);
+
+        if (!findDone.length) {
+          try {
+            const updatedUser = await Wbs.findByIdAndUpdate(
+              { _id: idwbs },
+              {
+                $push: {
+                  jobWbsdone: {
+                    idJob: idJob,
+                    jobStatus: jobStatus,
+                  },
+                },
+              }
+            );
+            res.status(200).json({
+              message: "load data",
+              data: updatedUser,
+            });
+          } catch (error) {
+            if (!error.statusCode) {
+              error.statusCode = 500;
+            }
+            next(error);
+          }
+        } else {
+          res.status(200).json({
+            message: "ok",
+          });
+        }
       } catch (error) {
         if (!error.statusCode) {
           error.statusCode = 500;
@@ -263,11 +300,61 @@ exports.postWbsjobdone = async (req, res, next) => {
         next(error);
       }
     } else {
-      res.status(200).json({
-        message: "ok",
-      });
+      try {
+        const findDone = await Wbs.find({
+          "jobWbsdone.idJob": idJob,
+        });
+        // console.log(findDone);
+
+        if (!findDone.length) {
+          try {
+            const updatedUser = await Wbs.findByIdAndUpdate(
+              { _id: idwbs },
+              { $set: { wbsStatus: text } },
+              {
+                $push: {
+                  jobWbsdone: {
+                    idJob: idJob,
+                    jobStatus: jobStatus,
+                  },
+                },
+              }
+            );
+            const updatedUser2 = await Wbs.findByIdAndUpdate(
+              { _id: idwbs },
+              {
+                $push: {
+                  jobWbsdone: {
+                    idJob: idJob,
+                    jobStatus: jobStatus,
+                  },
+                },
+              }
+            );
+            res.status(200).json({
+              message: "load data",
+              data: updatedUser,
+              data2: updatedUser2,
+            });
+          } catch (error) {
+            if (!error.statusCode) {
+              error.statusCode = 500;
+            }
+            next(error);
+          }
+        } else {
+          res.status(200).json({
+            message: "ok",
+          });
+        }
+      } catch (error) {
+        if (!error.statusCode) {
+          error.statusCode = 500;
+        }
+        next(error);
+      }
     }
-  } catch (error) {
+  } catch {
     if (!error.statusCode) {
       error.statusCode = 500;
     }
