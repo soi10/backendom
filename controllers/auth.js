@@ -124,7 +124,6 @@ exports.login = async (req, res, next) => {
     const token = jwt.sign({ dataUser }, process.env.KEY);
     res.status(200).json({
       token: token,
-      // data: dataUser,
     });
   } else {
     res.status(401).json({

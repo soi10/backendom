@@ -3,7 +3,7 @@ const path = require("path");
 const { validationResult } = require("express-validator/check");
 const Jobwbs = require("../models/jobwbs");
 
-exports.createJobwbs = (req, res, next) => {
+exports.createJobwbs = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -20,7 +20,6 @@ exports.createJobwbs = (req, res, next) => {
   const jobwbsOrder = req.body.jobwbsOrder;
   const jobwbsLocation = req.body.jobwbsLocation;
 
-  //   let creator;
   const jobwbs = new Jobwbs({
     jobwbsName: jobwbsName,
     jobwbsStatus: jobwbsStatus,
@@ -30,95 +29,88 @@ exports.createJobwbs = (req, res, next) => {
     jobwbsOrder: jobwbsOrder,
     jobwbsLocation: jobwbsLocation,
   });
-  jobwbs
-    .save()
-    .then((result) => {
-      res.status(200).json({
-        message: "user saved successfully",
-        // wbs: result._id,
-        jobwbs: result,
-      });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+
+  try {
+    const result = await jobwbs.save();
+    res.status(200).json({
+      message: "user saved successfully",
+      jobwbs: result,
     });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
 };
 
-exports.postJobwbs = (req, res, next) => {
+exports.postJobwbs = async (req, res, next) => {
   const job = req.body.job;
   const BaName = req.body.BaName;
 
-  Jobwbs.find({
-    jobwbsStatus: job,
-    jobwbsLocation: BaName,
-  })
-    .sort({ jobwbsOrder: 1 })
-    .then((result) => {
-      res.status(200).json({
-        message: "load data",
-        jobwbs: result,
-      });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+  try {
+    const result = await Jobwbs.find({
+      jobwbsStatus: job,
+      jobwbsLocation: BaName,
+    }).sort({ jobwbsOrder: 1 });
+    res.status(200).json({
+      message: "load data",
+      jobwbs: result,
     });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
 };
 
-exports.postJobwbsname = (req, res, next) => {
+exports.postJobwbsname = async (req, res, next) => {
   const idjob2 = req.body.idjob2;
 
-  Jobwbs.findOne(
-    {
-      _id: idjob2,
-    },
-    { fileJob: 0 }
-  )
-    // .sort({ jobwbsOrder: 1 })
-    .then((result) => {
-      res.status(200).json({
-        message: "load data",
-        jobwbs: result,
-      });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+  try {
+    const result = await Jobwbs.findOne(
+      {
+        _id: idjob2,
+      },
+      { fileJob: 0 }
+    );
+    res.status(200).json({
+      message: "load data",
+      jobwbs: result,
     });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
 };
 
-exports.deleteJobwbs = (req, res, next) => {
+exports.deleteJobwbs = async (req, res, next) => {
   const jobwbsId = req.body.jobwbsId;
-  Jobwbs.findById(jobwbsId)
-    .then((post) => {
-      if (!post) {
-        const error = new Error("Could not find post");
-        error.statusCode = 404;
-        throw error;
-      }
-      return Jobwbs.findByIdAndRemove(jobwbsId);
-    })
-    .then((result) => {
-      res.status(200).json({
-        messages: "Delete post successfully",
-      });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+
+  try {
+    const post = await Jobwbs.findById(jobwbsId);
+    if (!post) {
+      const error = new Error("Could not find post");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    await Jobwbs.findByIdAndRemove(jobwbsId);
+    res.status(200).json({
+      messages: "Delete post successfully",
     });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
 };
 
-exports.uploadJobfile = (req, res, next) => {
+exports.uploadJobfile = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -139,84 +131,81 @@ exports.uploadJobfile = (req, res, next) => {
   const fileOrder = req.body.fileOrder;
   const idJobwbs = req.body.idJobwbs;
 
-  Jobwbs.findByIdAndUpdate(
-    { _id: idJobwbs },
-    {
-      $push: {
-        fileJob: {
-          fileName: fileName,
-          fileDetail: fileDetail,
-          fileUrl: fileUrl,
-          fileOrder: fileOrder,
+  try {
+    const success = await Jobwbs.findByIdAndUpdate(
+      { _id: idJobwbs },
+      {
+        $push: {
+          fileJob: {
+            fileName: fileName,
+            fileDetail: fileDetail,
+            fileUrl: fileUrl,
+            fileOrder: fileOrder,
+          },
         },
+      }
+    );
+    res.status(200).json({
+      messages: success,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.postJobFileone = async (req, res, next) => {
+  try {
+    const idjob2 = req.body.idjob2;
+
+    const result = await Jobwbs.findOne(
+      {
+        _id: idjob2,
       },
-    },
-    function (error, success) {
-      if (error) {
-        next(error);
-      } else {
-        res.status(200).json({
-          messages: success,
-        });
+      {
+        fileJob: 1,
       }
+    );
+
+    res.status(200).json({
+      message: "load data",
+      fileJob: result,
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
     }
-  );
+    next(err);
+  }
 };
 
-exports.postJobFileone = (req, res, next) => {
-  const idjob2 = req.body.idjob2;
+exports.deleteJobfile = async (req, res, next) => {
+  try {
+    const fileUrl = req.body.fileUrl;
 
-  Jobwbs.findOne(
-    {
-      _id: idjob2,
-    },
-    {
-      fileJob: 1,
+    const jobwbs = await Jobwbs.findOneAndUpdate(
+      {
+        "fileJob.fileUrl": fileUrl,
+      },
+      { $pull: { fileJob: { fileUrl: fileUrl } } }
+    );
+
+    if (!jobwbs) {
+      const error = new Error("Could not find post");
+      error.statusCode = 404;
+      throw error;
     }
-  )
-    .then((result) => {
-      res.status(200).json({
-        message: "load data",
-        fileJob: result,
-      });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
-    });
-};
 
-exports.deleteJobfile = (req, res, next) => {
-  const fileUrl = req.body.fileUrl;
+    clearImage(fileUrl);
 
-  Jobwbs.findOneAndUpdate(
-    {
-      "fileJob.fileUrl": fileUrl,
-    },
-    { $pull: { fileJob: { fileUrl: fileUrl } } }
-  )
-    .then((jobwbs) => {
-      if (!jobwbs) {
-        const error = new Error("Could not find post");
-        error.statusCode = 404;
-        throw error;
-      }
-      clearImage(fileUrl);
-      return;
-    })
-    .then((result) => {
-      res.status(200).json({
-        messages: "Delete post successfully",
-      });
-    })
-    .catch((err) => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+    res.status(200).json({
+      messages: "Delete post successfully",
     });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
 };
 
 const clearImage = (filePath) => {

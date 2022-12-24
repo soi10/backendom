@@ -66,4 +66,24 @@ router.post(
   wbsController.postWbsjobupdate
 );
 
+router.post(
+  "/postwbspushnote",
+  isAuth,
+  // [
+  //   body("nameWbs").trim().isLength({ min: 5 }),
+  //   body("numberWbs").trim().isLength({ min: 5 }),
+  // ],
+  wbsController.postWbspushnote
+);
+
+router.post(
+  "/postwbsfetchnote",
+  isAuth,
+  // [
+  //   body("nameWbs").trim().isLength({ min: 5 }),
+  //   body("numberWbs").trim().isLength({ min: 5 }),
+  // ],
+  wbsController.postWbsfetchnote
+);
+
 module.exports = router;

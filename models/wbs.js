@@ -77,6 +77,17 @@ const wbsSchema = new Schema(
         type: String,
       },
     },
+    noteWbs: {
+      idjob: {
+        type: String,
+      },
+      textNote: {
+        type: String,
+      },
+      dateAdd: {
+        type: String,
+      },
+    },
   },
   {
     timestamps: true,
