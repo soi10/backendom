@@ -6,10 +6,8 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 require("dotenv").config();
 
-const wbsRoutes = require("./routes/wbs");
-const hardwareRoutes = require("./routes/hardware");
-const jobwbsRoutes = require("./routes/jobwbs");
 const authRoutes = require("./routes/auth");
+const nodeRoutes = require("./routes/node");
 
 const app = express();
 
@@ -21,23 +19,12 @@ const fileStorage = multer.diskStorage({
     let random = Math.floor(Math.random() * 1000000000);
     cb(
       null,
-      new Date().toISOString().replace(/:/g , "-") + random + path.extname(file.originalname)
+      new Date().toISOString().replace(/:/g, "-") +
+        random +
+        path.extname(file.originalname)
     );
   },
 });
-
-// const fileFilter = (req, file, cb) => {
-//   // if (
-//   //   file.mimetype === "image/png" ||
-//   //   file.mimetype === "image/jpg" ||
-//   //   file.mimetype === "image/jpeg"
-//   // ) {
-//   //   cb(null, true);
-//   // } else {
-//   // cb(null, false);
-//   // }
-//   cb(null, true);
-// };
 
 app.use(bodyParser.json()); // application/json
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -45,7 +32,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(
   multer({
     storage: fileStorage,
-    // fileFilter: fileFilter,
   }).single("fileUrl")
 );
 app.use("/images", express.static(path.join(__dirname, "images")));
@@ -61,9 +47,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/auth", authRoutes);
-app.use("/wbs", wbsRoutes);
-app.use("/jobwbs", jobwbsRoutes);
-app.use("/hardware", hardwareRoutes);
+app.use("/node", nodeRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
@@ -76,6 +60,7 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(process.env.MONGODB)
   .then((result) => {
-    app.listen(443);
+    app.listen(process.env.PORT);
+    console.log("server started port: " + process.env.PORT);
   })
   .catch((err) => console.log(err));
